@@ -861,7 +861,7 @@ export default function Page() {
         <ScrollArea flex={1} px="md">
           {renderSearchResults()}
           <Text size="xs" c="dimmed" ta="right" py="md">
-            En Croissant v{version}
+            ChessimoFree v{version}
           </Text>
         </ScrollArea>
       ) : (
@@ -1030,7 +1030,7 @@ export default function Page() {
               </Card>
             </ScrollArea>
             <Text size="xs" c="dimmed" ta="right">
-              En Croissant v{version}
+              ChessimoFree v{version}
             </Text>
           </Stack>
         </Tabs>

@@ -1,0 +1,82 @@
+name: ChessimoFree Windows preview
+
+on:
+  push:
+    branches: [feature/pgn-courses]
+    paths:
+      - "src/**"
+      - "src-tauri/**"
+      - "scripts/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "vite.config.ts"
+      - ".github/workflows/windows-preview.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-preview-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 120
+    env:
+      AIX_EXTENSION_TARGET: windows_amd64
+      AIX_EXTENSION_FORCE_DOWNLOAD: "1"
+      CARGO_BUILD_JOBS: "2"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "src-tauri -> target"
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check TypeScript and lint
+        run: pnpm lint
+
+      - name: Test PGN courses and existing features
+        run: pnpm test
+
+      - name: Build Windows installer
+        run: pnpm exec tauri build --bundles nsis --ci
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add checksums and source revision
+        shell: pwsh
+        run: |
+          $installers = @(Get-ChildItem -Path src-tauri/target/release/bundle/nsis -Filter '*-setup.exe')
+          if ($installers.Count -eq 0) { throw 'No Windows installer was generated.' }
+          foreach ($installer in $installers) {
+            $hash = (Get-FileHash -LiteralPath $installer.FullName -Algorithm SHA256).Hash.ToLower()
+            "$hash  $($installer.Name)" | Set-Content -LiteralPath "$($installer.FullName).sha256" -Encoding utf8
+          }
+          "Source: https://github.com/${{ github.repository }}/commit/${{ github.sha }}" | Set-Content src-tauri/target/release/bundle/nsis/SOURCE.txt -Encoding utf8
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: ChessimoFree-windows-x64-${{ github.sha }}
+          path: |
+            src-tauri/target/release/bundle/nsis/*-setup.exe
+            src-tauri/target/release/bundle/nsis/*.sha256
+            src-tauri/target/release/bundle/nsis/SOURCE.txt
+          if-no-files-found: error
+          retention-days: 30

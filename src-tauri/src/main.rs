@@ -111,7 +111,7 @@ pub fn file_from_args(args: &[String], cwd: &str) -> Option<String> {
     } else {
         first
     };
-    if args.next().is_some() || file.to_ascii_lowercase().starts_with("encroissant:") {
+    if args.next().is_some() || file.to_ascii_lowercase().starts_with("chessimofree:") {
         return None;
     }
     Some(
@@ -213,7 +213,7 @@ fn main() {
     let log_targets = [
         TargetKind::Stdout,
         TargetKind::LogDir {
-            file_name: Some(String::from("en-croissant.log")),
+            file_name: Some(String::from("chessimofree.log")),
         },
     ];
 
@@ -290,10 +290,6 @@ fn main() {
 
             #[cfg(desktop)]
             app.handle().plugin(tauri_plugin_cli::init())?;
-
-            #[cfg(desktop)]
-            app.handle()
-                .plugin(tauri_plugin_updater::Builder::new().build())?;
 
             log::info!("Finished rust initialization");
 

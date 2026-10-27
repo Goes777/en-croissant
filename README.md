@@ -31,6 +31,10 @@ and access to the existing study board and repertoire trainer.
 See the [course guide](docs/COURSES.md) and [sample PGNs](docs/examples).
 Original authorship and the GPL-3.0 license are retained.
 
+The desktop fork is named **ChessimoFree** and uses a separate application ID,
+data directory, and deep-link scheme. Upstream automatic updates are disabled.
+See the [Windows build guide](docs/WINDOWS.md) for preview installers and local builds.
+
 ## Features
 
 - Store and analyze your games from [lichess.org](https://lichess.org) and [chess.com](https://chess.com)

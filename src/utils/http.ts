@@ -1,7 +1,7 @@
 import { getVersion } from "@tauri-apps/api/app";
 
-const APP_NAME = "EnCroissant";
-const APP_REPO = "https://github.com/franciscoBSalgueiro/en-croissant";
+const APP_NAME = "ChessimoFree";
+const APP_REPO = "https://github.com/Goes777/en-croissant";
 
 let userAgent = APP_NAME;
 

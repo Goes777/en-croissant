@@ -1,0 +1,9 @@
+[Event "Promova o peão"]
+[Topic "Promoção"]
+[SetUp "1"]
+[FEN "7k/P7/8/8/8/8/8/K7 w - - 0 1"]
+[Result "*"]
+
+{O peão chegou à sétima fila. Estude a promoção e a resposta do rei.}
+1. a8=Q+ {O peão transforma-se em dama e dá xeque pela oitava fila.}
+Kg7 {O rei sai do xeque. As brancas obtiveram uma vantagem decisiva de material.} *

@@ -1,5 +1,5 @@
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
-import { ActionIcon, Box, ScrollArea, Tabs } from "@mantine/core";
+import { ActionIcon, Box, ScrollArea, Stack, Tabs } from "@mantine/core";
 import { useElementSize, useHotkeys, useToggle } from "@mantine/hooks";
 import { IconPlus } from "@tabler/icons-react";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
@@ -19,6 +19,7 @@ import Puzzles from "../puzzles/Puzzles";
 import { BoardTab } from "./BoardTab";
 import ConfirmChangesModal from "./ConfirmChangesModal";
 import NewTabHome from "./NewTabHome";
+import CourseLessonBar from "../courses/CourseLessonBar";
 
 import "react-mosaic-component/react-mosaic-component.css";
 
@@ -124,6 +125,7 @@ export default function BoardsPage() {
             value: id,
             type: tab.type,
             gameOrigin: tab.gameOrigin,
+            course: tab.course,
           },
         ]);
         startTransition(() => setActiveTab(id));
@@ -258,13 +260,18 @@ export default function BoardsPage() {
       )}
       {tabs.map((tab) => (
         <Tabs.Panel key={tab.value} value={tab.value} h="100%" w="100%" pb="sm" px="xs">
-          <TabSwitch
-            tab={tab}
-            saveModalOpened={saveModalOpened}
-            toggleSaveModal={toggleSaveModal}
-            closeTab={closeTab}
-            activeTab={activeTab}
-          />
+          <Stack h="100%" gap={0}>
+            {tab.course && <CourseLessonBar context={tab.course} />}
+            <Box flex={1} mih={0}>
+              <TabSwitch
+                tab={tab}
+                saveModalOpened={saveModalOpened}
+                toggleSaveModal={toggleSaveModal}
+                closeTab={closeTab}
+                activeTab={activeTab}
+              />
+            </Box>
+          </Stack>
         </Tabs.Panel>
       ))}
     </Tabs>

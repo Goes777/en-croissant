@@ -60,7 +60,7 @@ import {
   practiceStateAtom,
   practiceAutoDifficultyAtom,
 } from "@/state/atoms";
-import { getTabFile, getTabGameNumber } from "@/utils/tabs";
+import { getPracticeSource, getTabFile } from "@/utils/tabs";
 import { findFen, getNodeAtPath } from "@/utils/treeReducer";
 import RepertoireInfo from "./RepertoireInfo";
 
@@ -78,12 +78,7 @@ function PracticePanel() {
   const tabFile = getTabFile(currentTab);
   const [resetModal, toggleResetModal] = useToggle();
 
-  const [deck, setDeck] = useAtom(
-    deckAtomFamily({
-      file: tabFile?.path || "",
-      game: getTabGameNumber(currentTab),
-    }),
-  );
+  const [deck, setDeck] = useAtom(deckAtomFamily(getPracticeSource(currentTab)));
 
   const [syncMessage, setSyncMessage] = useState<{
     added: number;
@@ -632,7 +627,7 @@ function PracticePanel() {
       <ConfirmModal
         title={t("Board.Practice.Reset.Title")}
         description={t("Board.Practice.Reset.Description", {
-          name: tabFile?.name,
+          name: tabFile?.name ?? currentTab?.name,
         })}
         opened={resetModal}
         onClose={toggleResetModal}

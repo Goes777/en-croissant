@@ -127,7 +127,7 @@ function BoardAnalysis() {
   const [currentTabSelected, setCurrentTabSelected] = useAtom(currentTabSelectedAtom);
   const [, setReportModalOpen] = useAtom(currentReportModalOpenAtom);
   const practiceTabSelected = useAtomValue(currentPracticeTabAtom);
-  const isRepertoire = tabFile?.metadata.type === "repertoire";
+  const isRepertoire = tabFile?.metadata.type === "repertoire" || !!currentTab?.course;
   const practicing = currentTabSelected === "practice" && practiceTabSelected === "train";
   const practiceState = useAtomValue(practiceStateAtom);
   const isPracticeRating = practicing && practiceState.phase === "correct";

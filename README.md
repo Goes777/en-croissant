@@ -22,6 +22,15 @@
 
 En-Croissant is an open-source, cross-platform chess GUI that aims to be powerful, customizable and easy to use.
 
+## PGN courses fork
+
+This modified version is maintained at [Goes777/en-croissant](https://github.com/Goes777/en-croissant).
+The course module was added on 2026-10-26. It adds a Courses sidebar entry, local
+imports of multiple PGNs into a course, themes, lessons, manual completion progress,
+and access to the existing study board and repertoire trainer.
+See the [course guide](docs/COURSES.md) and [sample PGNs](docs/examples).
+Original authorship and the GPL-3.0 license are retained.
+
 ## Features
 
 - Store and analyze your games from [lichess.org](https://lichess.org) and [chess.com](https://chess.com)

@@ -1,0 +1,18 @@
+[Event "Desenvolva os cavalos e os bispos"]
+[Topic "Desenvolvimento"]
+[Result "*"]
+
+{O objetivo desta lição é desenvolver as peças menores e disputar o centro.}
+1. e4 {O peão ocupa o centro e abre uma diagonal para o bispo.}
+e5 2. Nf3 {O cavalo ataca e5 e desenvolve uma peça.}
+Nc6 (2... Nf6 {Outra forma de desenvolver o cavalo, atacando o peão e4.})
+3. Bc4 {O bispo sai da casa inicial e aponta para f7.} *
+
+[Event "Mate em um lance"]
+[Topic "Mate"]
+[SetUp "1"]
+[FEN "7k/8/5KQ1/8/8/8/8/8 w - - 0 1"]
+[Result "1-0"]
+
+{As brancas jogam. Encontre um xeque que cubra todas as casas de fuga.}
+1. Qg7# {O rei branco protege a dama em g7. A dama dá xeque e cobre g8 e h7.} 1-0

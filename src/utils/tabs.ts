@@ -5,6 +5,7 @@ import { z } from "zod";
 import type { StoreApi } from "zustand";
 import { commands } from "@/bindings";
 import { type FileMetadata, fileMetadataSchema } from "@/components/files/file";
+import { courseContextSchema } from "@/components/courses/model";
 import type { TreeStoreState } from "@/state/store/tree";
 import { getPGN, parsePGN } from "./chess";
 import { type GameHeaders, getGameName } from "./treeReducer";
@@ -61,10 +62,18 @@ export const tabSchema = z.object({
     value: z.string(),
     type: z.enum(["new", "play", "analysis", "puzzles"]),
     gameOrigin: gameOriginSchema,
+    course: courseContextSchema.optional(),
 });
 
 export type GameOrigin = z.infer<typeof gameOriginSchema>;
 export type Tab = z.infer<typeof tabSchema>;
+
+export function getPracticeSource(tab?: Tab | null): { file: string; game: number } {
+    if (tab?.course) {
+        return { file: "course:" + tab.course.courseId + ":" + tab.course.lessonId, game: 0 };
+    }
+    return { file: getTabFile(tab)?.path ?? "", game: getTabGameNumber(tab) };
+}
 
 export function getTabFile(tab?: Tab | null): FileMetadata | undefined {
     if (!tab) return undefined;
@@ -107,7 +116,7 @@ export async function createTab({
     setTabs: React.Dispatch<React.SetStateAction<Tab[]>>;
     setActiveTab: React.Dispatch<React.SetStateAction<string | null>>;
     pgn?: string;
-    headers?: GameHeaders;
+    headers?: Partial<GameHeaders>;
     gameOrigin?: GameOrigin;
     position?: number[];
 }) {

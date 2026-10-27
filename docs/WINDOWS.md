@@ -1,7 +1,8 @@
 # ChessimoFree para Windows
 
 O fork é instalado como **ChessimoFree**, mantendo os componentes e o visual do
-En Croissant. A versão inicial usa a numeração 0.15.1 da base original.
+En Croissant. A versão 0.15.2 corrige a permissão de leitura de metadados usada
+na importação de PGNs; a base original do fork é a versão 0.15.1.
 
 ## Compilação automática
 
@@ -9,13 +10,17 @@ O workflow **ChessimoFree Windows preview** compila a branch feature/pgn-courses
 num runner Windows x64 com Rust e Visual C++. Depois dos testes e da compilação,
 o artefacto ChessimoFree-windows-x64 contém:
 
-- O instalador NSIS `ChessimoFree_0.15.1_x64-setup.exe`.
+- O instalador NSIS `ChessimoFree_0.15.2_x64-setup.exe`.
 - O SHA-256 do instalador e a revisão exata do código em SOURCE.txt.
 
 Os artefactos ficam disponíveis durante 30 dias na página da execução em
 [Actions](https://github.com/Goes777/en-croissant/actions/workflows/windows-preview.yml).
 O workflow não publica releases nem precisa de chaves de assinatura do upstream.
 O instalador de prévia não tem assinatura de código do Windows.
+
+O pipeline verifica os comandos de arquivo usados pelo módulo de cursos contra
+os manifestos de permissões gerados pelo próprio Tauri. Essa verificação é
+adicional aos testes de importação e progresso, que simulam o acesso nativo.
 
 ## Instalação separada
 

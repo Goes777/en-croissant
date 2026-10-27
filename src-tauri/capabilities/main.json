@@ -29,6 +29,7 @@
         "process:default",
         "log:default",
         "fs:default",
+        "fs:allow-stat",
         "fs:write-all",
         "window-state:default",
         {

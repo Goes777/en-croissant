@@ -27,6 +27,7 @@ O instalador de prévia não tem assinatura de código do Windows.
   por esta versão.
 - Atualizações automáticas do En Croissant estão desativadas. As prévias são
   atualizadas por instalação manual de um novo instalador do fork.
+  O comando **Verificar atualizações** abre a página das compilações do fork.
 
 As pastas personalizadas escolhidas nas configurações continuam a ser respeitadas.
 O instalador não migra automaticamente cursos nem configurações de outra versão.

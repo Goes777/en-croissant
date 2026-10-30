@@ -10,7 +10,7 @@ import {
   Title,
 } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
-import { parsePgn, startingPosition } from "chessops/pgn";
+import { parsePgn, startingPosition, parseComment } from "chessops/pgn";
 import { parseSan } from "chessops/san";
 import { makeFen } from "chessops/fen";
 import { type Exercise, type SourceAnchor, isMoveExercise } from "@/domain/exercises/model";
@@ -55,7 +55,10 @@ export function StudyPanel({
       comments = game.comments ?? [];
     let reached = 0;
     for (let i = 0; i < step; i++) {
-      const child = node.children[branch[i] ?? 0];
+      const child =
+        branch[i] === undefined
+          ? node.children.find((child) => child.data.san !== "--")
+          : node.children[branch[i]];
       if (!child) break;
       const move = parseSan(position, child.data.san);
       if (!move) break;
@@ -66,11 +69,20 @@ export function StudyPanel({
     }
     return {
       fen: makeFen(position.toSetup()),
-      comments,
-      choices: node.children.map((child, index) => ({
-        value: String(index),
-        label: child.data.san,
-      })),
+      comments: [
+        ...comments,
+        ...node.children
+          .filter((child) => child.data.san === "--")
+          .flatMap((child) => child.data.comments ?? []),
+      ],
+      choices: node.children
+        .map((child, index) => ({
+          value: String(index),
+          label:
+            child.data.san +
+            (child.data.nags?.some((nag) => [2, 4, 6].includes(nag)) ? " ? · linha de erro" : ""),
+        }))
+        .filter((_, index) => node.children[index].data.san !== "--"),
       max: reached,
     };
   }, [view, step, branch]);
@@ -121,7 +133,7 @@ export function StudyPanel({
       <Title order={2}>{view.title}</Title>
       <div className="lesson-layout">
         <div>
-          <TrainingBoard fen={state.fen} theme={theme} />
+          <TrainingBoard fen={state.fen} theme={theme} annotations={state.comments} />
           <Group mt="sm">
             <Button variant="default" onClick={() => setStep(0)}>
               Início
@@ -144,7 +156,7 @@ export function StudyPanel({
           {state.choices.length > 1 && (
             <Select
               label="Variante a seguir"
-              value={String(branch[step] ?? 0)}
+              value={String(branch[step] ?? state.choices[0]?.value ?? 0)}
               data={state.choices}
               onChange={(value) =>
                 setBranch((current) => [...current.slice(0, step), Number(value)])
@@ -154,12 +166,22 @@ export function StudyPanel({
         </div>
         <Stack>
           <Text>{view.prompt}</Text>
-          {state.comments.map((comment, index) => (
-            <Text key={index} className="readable">
-              {comment}
+          {view.sourceNotes?.map((note) => (
+            <Text key={note} size="sm" c="dimmed">
+              {note}
             </Text>
           ))}
-          <Text className="readable">{view.explanation}</Text>
+          {state.comments.map((comment, index) => (
+            <Text key={index} className="readable">
+              {parseComment(comment).text}
+            </Text>
+          ))}
+          {state.comments
+            .map((comment) => parseComment(comment).text)
+            .filter(Boolean)
+            .join("\n") !== view.explanation && (
+            <Text className="readable">{view.explanation}</Text>
+          )}
           {anchors.map((anchor) => (
             <Text key={anchor.id} size="sm" c="dimmed">
               Fonte: {anchor.label}

@@ -30,6 +30,7 @@ import { fsrsScheduler } from "@/infrastructure/fsrs/FsrsSchedulerAdapter";
 import { recordReview, trainingDb } from "@/infrastructure/db/TrainingDatabase";
 import { TrainingBoard } from "./Board";
 import { LocalEngine } from "./engine";
+import { lineInSan } from "@/domain/exercises/notation";
 
 export function TrainingSession({
   exercise,
@@ -176,6 +177,11 @@ export function TrainingSession({
               {exercise.courseTitle}
             </Text>
             <Title order={2}>{exercise.title}</Title>
+            {exercise.stage && (
+              <Text size="sm" c="dimmed">
+                Etapa {exercise.stage} · {exercise.trainingType}
+              </Text>
+            )}
           </div>
           <Text className="readable">{exercise.prompt}</Text>
           {!feedback && (
@@ -316,9 +322,16 @@ export function TrainingSession({
                 {exercise.acceptedLinesUci.length > 0 && (
                   <Text size="sm">
                     Continuações aprovadas:{" "}
-                    {exercise.acceptedLinesUci.map((line) => line.join(" ")).join(" / ")}
+                    {exercise.acceptedLinesUci
+                      .map((line) => lineInSan(exercise.startFen, line))
+                      .join(" / ")}
                   </Text>
                 )}
+                {exercise.sourceNotes?.map((note) => (
+                  <Text key={note} size="sm" c="dimmed">
+                    {note}
+                  </Text>
+                ))}
                 {exercise.options.map((option) => (
                   <Text key={option.id} size="sm">
                     <strong>{option.label}:</strong> {option.explanation}{" "}

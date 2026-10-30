@@ -42,6 +42,13 @@ export const exerciseSchema = z.object({
     sourcePgn: z.string().optional(),
     courseTitle: z.string().default("Meus exercícios"),
     order: z.number().int().nonnegative().default(0),
+    trainingType: z.string().optional(),
+    stage: z.string().optional(),
+    sourceRecord: z.string().optional(),
+    sourceCollection: z.string().optional(),
+    exerciseNumber: z.number().int().positive().optional(),
+    lessonRole: z.enum(["exercise", "example"]).optional(),
+    sourceNotes: z.array(z.string()).optional(),
 });
 export type Exercise = z.infer<typeof exerciseSchema>;
 export type ExerciseKind = Exercise["kind"];

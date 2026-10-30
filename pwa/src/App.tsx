@@ -48,6 +48,8 @@ import { ImportPanel } from "./ImportPanel";
 import { StudyPanel } from "./StudyPanel";
 import { download, exportCourse, exportPgn } from "./io";
 import { observedStatistics } from "@/domain/exercises/statistics";
+import { loadBundledModules, installBundledModule } from "./bundledModules";
+import { ModuleOverview } from "./ModuleOverview";
 
 type Snapshot = {
   exercises: Exercise[];
@@ -74,6 +76,8 @@ const pages = [
 ];
 
 export function App() {
+  const [bundledExercises, setBundledExercises] = useState<Exercise[]>([]),
+    [moduleBusy, setModuleBusy] = useState(false);
   const [page, setPage] = useState("today"),
     [snapshot, setSnapshot] = useState<Snapshot>({
       exercises: [],
@@ -82,7 +86,11 @@ export function App() {
       events: [],
       legacy: [],
     }),
-    [session, setSession] = useState<{ exercise: Exercise; card: SrsExerciseCard } | null>(null),
+    [session, setSession] = useState<{
+      exercise: Exercise;
+      card: SrsExerciseCard;
+      guided?: boolean;
+    } | null>(null),
     [study, setStudy] = useState<Exercise | null>(null);
   const [error, setError] = useState(""),
     [ready, setReady] = useState(false),
@@ -115,6 +123,7 @@ export function App() {
     })).subscribe({ next: setSnapshot, error: (cause) => setError(String(cause)) });
     void (async () => {
       try {
+        setBundledExercises((await loadBundledModules()).flatMap((pack) => pack.exercises));
         const preference = await trainingDb.settings.get("ui.preferences");
         if (preference) {
           const value = preference.value as { color?: string; board?: string; pieces?: string };
@@ -185,10 +194,27 @@ export function App() {
     [snapshot, clock, previousFamily],
   );
   const courses = [...new Set(snapshot.exercises.map((x) => x.courseTitle))].sort();
+  const [stage, setStage] = useState<string | null>(null),
+    [trainingType, setTrainingType] = useState<string | null>(null),
+    [lessonRole, setLessonRole] = useState<string | null>("exercise");
+  const moduleLessons = snapshot.exercises.filter(
+    (exercise) => !course || exercise.courseTitle === course,
+  );
+  const stages = [
+    ...new Set(moduleLessons.flatMap((exercise) => (exercise.stage ? [exercise.stage] : []))),
+  ].sort((a, b) => Number(a) - Number(b));
+  const trainingTypes = [
+    ...new Set(
+      moduleLessons.flatMap((exercise) => (exercise.trainingType ? [exercise.trainingType] : [])),
+    ),
+  ].sort();
   const filtered = snapshot.exercises
     .filter(
       (exercise) =>
         (!course || exercise.courseTitle === course) &&
+        (!stage || exercise.stage === stage) &&
+        (!trainingType || exercise.trainingType === trainingType) &&
+        (!lessonRole || (exercise.lessonRole ?? "exercise") === lessonRole) &&
         (!kind || (kind === "tactic" ? isMoveExercise(exercise) : !isMoveExercise(exercise))) &&
         `${exercise.title} ${exercise.tags.join(" ")}`.toLowerCase().includes(search.toLowerCase()),
     )
@@ -215,9 +241,9 @@ export function App() {
     setSession(null);
     setStudy(null);
   }
-  function start(card: SrsExerciseCard) {
+  function start(card: SrsExerciseCard, guided = false) {
     const exercise = snapshot.exercises.find((x) => x.id === card.exerciseId);
-    if (exercise) setSession({ exercise, card });
+    if (exercise) setSession({ exercise, card, guided });
   }
   async function backup() {
     try {
@@ -245,6 +271,23 @@ export function App() {
       setClock(new Date());
     } catch (cause) {
       setError(String(cause));
+    }
+  }
+  async function openModule(title: string) {
+    setModuleBusy(true);
+    try {
+      await installBundledModule(title);
+      setCourse(title);
+      setKind(null);
+      setStage(null);
+      setTrainingType(null);
+      setSearch("");
+      setPagination(1);
+      setLessonRole("exercise");
+    } catch (cause) {
+      setError(String(cause));
+    } finally {
+      setModuleBusy(false);
     }
   }
   return (
@@ -300,7 +343,7 @@ export function App() {
           <Text size="xs" c="dimmed" mt="auto">
             Dados locais · sem conta
             <br />
-            v0.16.0
+            v0.16.1
           </Text>
         </AppShell.Navbar>
         <AppShell.Main>
@@ -329,7 +372,22 @@ export function App() {
                 onClose={() => setSession(null)}
                 onSaved={() => {
                   setPreviousFamily(session.exercise.exerciseFamilyId);
-                  setSession(null);
+                  const next = session.guided
+                    ? filtered.find(
+                        (exercise) =>
+                          exercise.courseTitle === session.exercise.courseTitle &&
+                          exercise.lessonRole !== "example" &&
+                          exercise.order > session.exercise.order,
+                      )
+                    : undefined;
+                  const nextCard = next
+                    ? snapshot.cards.find((card) => card.exerciseId === next.id && !card.suspended)
+                    : undefined;
+                  setSession(
+                    next && nextCard ? { exercise: next, card: nextCard, guided: true } : null,
+                  );
+                  // Timestamp of the completed rating event.
+                  // oxlint-disable-next-line react/purity
                   setClock(new Date());
                 }}
               />
@@ -339,7 +397,9 @@ export function App() {
               <>
                 {page === "today" && (
                   <Stack gap="lg">
-                    {!snapshot.exercises.length && (
+                    {!snapshot.exercises.some((exercise) =>
+                      exercise.id.startsWith("chesspratica-intro:"),
+                    ) && (
                       <Alert title="Comece por um curso guiado">
                         <Text>
                           20 exercícios autorais: 10 de tática e técnica e 10 de estratégia, com
@@ -465,6 +525,21 @@ export function App() {
                         <Button onClick={() => navigate("import")}>Importar curso</Button>
                       </Group>
                     </Group>
+                    {!course && !search && (
+                      <ModuleOverview
+                        exercises={[
+                          ...new Map(
+                            [...bundledExercises, ...snapshot.exercises].map((exercise) => [
+                              exercise.id,
+                              exercise,
+                            ]),
+                          ).values(),
+                        ]}
+                        attempts={snapshot.attempts}
+                        onSelect={(title) => void openModule(title)}
+                        busy={moduleBusy}
+                      />
+                    )}
                     <Group grow>
                       <TextInput
                         label="Pesquisar"
@@ -482,6 +557,8 @@ export function App() {
                         value={course}
                         onChange={(value) => {
                           setCourse(value);
+                          setStage(null);
+                          setTrainingType(null);
                           setPagination(1);
                         }}
                       />
@@ -500,8 +577,51 @@ export function App() {
                         }}
                       />
                     </Group>
+                    {(stages.length > 0 || trainingTypes.length > 0) && (
+                      <Group grow>
+                        <Select
+                          label="Etapa"
+                          placeholder="Todas"
+                          clearable
+                          data={stages.map((value) => ({ value, label: "Etapa " + value }))}
+                          value={stage}
+                          onChange={(value) => {
+                            setStage(value);
+                            setPagination(1);
+                          }}
+                        />
+                        <Select
+                          label="Tipo de treino"
+                          placeholder="Todos os temas"
+                          clearable
+                          searchable
+                          data={trainingTypes}
+                          value={trainingType}
+                          onChange={(value) => {
+                            setTrainingType(value);
+                            setPagination(1);
+                          }}
+                        />
+                        <Select
+                          label="Conteúdo"
+                          clearable
+                          placeholder="Exercícios e exemplos"
+                          data={[
+                            { value: "exercise", label: "Exercícios" },
+                            { value: "example", label: "Exemplos didáticos" },
+                          ]}
+                          value={lessonRole}
+                          onChange={(value) => {
+                            setLessonRole(value);
+                            setPagination(1);
+                          }}
+                        />
+                      </Group>
+                    )}
                     <Text size="sm" c="dimmed">
-                      {filtered.length} exercícios · vários temas por curso
+                      {filtered.length}{" "}
+                      {lessonRole === "example" ? "exemplos didáticos" : "exercícios"} · vários
+                      temas por curso
                     </Text>
                     <SimpleGrid cols={{ base: 1, lg: 2 }}>
                       {filtered.slice((pagination - 1) * 20, pagination * 20).map((exercise) => {
@@ -511,7 +631,11 @@ export function App() {
                             <Stack gap="xs">
                               <Group justify="space-between">
                                 <Badge variant="light">
-                                  {isMoveExercise(exercise) ? "Tática / técnica" : "Estratégia"}
+                                  {exercise.lessonRole === "example"
+                                    ? "Exemplo didático"
+                                    : isMoveExercise(exercise)
+                                      ? "Tática / técnica"
+                                      : "Estratégia"}
                                 </Badge>
                                 <Text size="xs" c="dimmed">
                                   v{exercise.version}
@@ -522,17 +646,20 @@ export function App() {
                               </Title>
                               <Text size="sm" c="dimmed">
                                 {exercise.courseTitle} · {exercise.tags.join(" / ")}
+                                {exercise.stage ? " · Etapa " + exercise.stage : ""}
                               </Text>
                               <Group>
-                                <Button
-                                  size="sm"
-                                  disabled={
-                                    !card || card.suspended || exercise.status !== "validated"
-                                  }
-                                  onClick={() => card && start(card)}
-                                >
-                                  Treinar
-                                </Button>
+                                {exercise.lessonRole !== "example" && (
+                                  <Button
+                                    size="sm"
+                                    disabled={
+                                      !card || card.suspended || exercise.status !== "validated"
+                                    }
+                                    onClick={() => card && start(card, !!exercise.trainingType)}
+                                  >
+                                    Treinar
+                                  </Button>
+                                )}
                                 <Button
                                   size="sm"
                                   variant="default"

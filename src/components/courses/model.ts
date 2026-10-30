@@ -202,7 +202,7 @@ export function inspectCourseSource(pgn: string) {
     return { games: games.length, moves };
 }
 
-export function inspectCourseGame(pgn: string) {
+export function inspectCourseGame(pgn: string, options: { allowTerminalNullMoves?: boolean } = {}) {
     const { games, tokenCount } = parseCoursePgn(pgn);
     if (games.length !== 1) throw new CourseError("invalidPgn");
     const game = games[0];
@@ -228,6 +228,16 @@ export function inspectCourseGame(pgn: string) {
         const item = stack.pop()!;
         if (item.node.children.length) trainingPositions[item.position.turn].add(item.key);
         for (const child of item.node.children) {
+            // Some lesson databases use a terminal -- as a diagram/end marker.
+            // It is counted for source fidelity, never played as a legal move.
+            if (
+                options.allowTerminalNullMoves &&
+                child.data.san === "--" &&
+                !child.children.length
+            ) {
+                moves++;
+                continue;
+            }
             const next = item.position.clone();
             const move = parseSan(next, child.data.san);
             if (!move || !next.isLegal(move)) {

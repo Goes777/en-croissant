@@ -31,3 +31,6 @@ test-results
 *.sw?
 
 src-tauri/gen/
+
+# Personal course material is packaged locally, never committed to the public fork.
+local-courses/

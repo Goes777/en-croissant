@@ -5,15 +5,14 @@ import {
     startingPosition,
     type Game,
     type PgnNodeData,
-    type Node,
+    parseComment,
 } from "chessops/pgn";
 import { makeFen } from "chessops/fen";
-import { parseSan } from "chessops/san";
-import { makeUci } from "chessops";
-import { normalizeMove, type Position } from "chessops/chess";
+import { parseSquare } from "chessops";
 import { inspectCourseSource, inspectCourseGame, courseSchema } from "@/components/courses/model";
 import { type Exercise, type SourceAnchor, type SrsExerciseCard, stableId } from "./model";
 import { validateExercise } from "./grader";
+import { solutionLines } from "./pgnSolution";
 
 export type ImportProposal = {
     exercises: Exercise[];
@@ -45,48 +44,90 @@ export async function proposePgnExercises(
     for (const [index, game] of games.entries()) {
         try {
             const pgn = makePgn(game),
-                summary = inspectCourseGame(pgn);
+                summary = inspectCourseGame(pgn, { allowTerminalNullMoves: true });
             const initial = startingPosition(game.headers).unwrap();
-            const lines: string[][] = [];
-            const stack: { node: Node<PgnNodeData>; position: Position; moves: string[] }[] = [
-                { node: game.moves, position: initial, moves: [] },
-            ];
-            while (stack.length) {
-                const item = stack.pop()!;
-                if (!item.node.children.length && item.moves.length) lines.push(item.moves);
-                for (const child of [...item.node.children].reverse()) {
-                    const next = item.position.clone();
-                    const move = parseSan(next, child.data.san);
-                    if (!move || !next.isLegal(move)) throw new Error("Lance ilegal no PGN.");
-                    const uci = makeUci(normalizeMove(next, move));
-                    next.play(move);
-                    stack.push({ node: child, position: next, moves: [...item.moves, uci] });
-                }
-                if (lines.length + stack.length > 1000)
-                    throw new Error(
-                        "Excesso de variantes para um único exercício; divida o capítulo.",
-                    );
-            }
-            const anchorId = await stableId(sourceKey + ":" + index);
+            const trainingType = game.headers.get("TrainingType") ?? summary.topic;
+            const mate = !!trainingType && /^Mate em [12](?:\b|\s)/i.test(trainingType);
+            const { lines, terminalMarkers, refutations } = solutionLines(game, mate);
+            const sourceRecord = game.headers.get("SourceRecord"),
+                sourceCollection = game.headers.get("Event") ?? sourceKey;
+            const identity = sourceRecord
+                ? `${courseTitle}:${sourceCollection}:${sourceRecord}`
+                : sourceKey + ":" + index;
+            const anchorId = await stableId(identity);
+            const white = game.headers.get("White") ?? "",
+                example = /^Example\s+\d+/i.test(white);
+            const exerciseNumber = /^(?:Exercício|Exercise|Example)\s+(\d+)/i.exec(white)?.[1];
             const comments = [
                 ...(game.comments ?? []),
                 ...Array.from(game.moves.mainline()).flatMap((node) => node.comments ?? []),
-            ].join("\n");
+            ]
+                .map((comment) => parseComment(comment).text)
+                .filter(Boolean)
+                .join("\n");
             const concept = mode === "concept" || !lines.length;
+            if (
+                mode === "moves" &&
+                !lines.length &&
+                summary.mainlineMoves > terminalMarkers &&
+                !example
+            )
+                throw new Error(
+                    "Nenhuma solução confiável restou após excluir as variantes de erro.",
+                );
+            const topic = trainingType || game.headers.get("ChessimoModule") || "PGN";
+            const origin = lines[0]?.[0]?.slice(0, 2),
+                role = origin ? initial.board.get(parseSquare(origin)!)?.role : undefined;
+            const pieceNames = {
+                pawn: "peão",
+                knight: "cavalo",
+                bishop: "bispo",
+                rook: "torre",
+                queen: "dama",
+                king: "rei",
+            };
+            const prompt = example
+                ? "Estude a posição, as anotações e as variantes do exemplo original."
+                : mate
+                  ? `Encontre o ${trainingType!.split(" / ")[0].toLowerCase()}.`
+                  : /^Empate$/i.test(topic)
+                    ? "Encontre a continuação que consegue o empate."
+                    : /^Ganho/i.test(topic)
+                      ? `Encontre a continuação para ${topic.split(" / ").at(-1)!.toLowerCase()}.`
+                      : /^Sacrifício/i.test(topic)
+                        ? `Encontre a combinação de ${topic.toLowerCase()}.`
+                        : "Encontre a melhor continuação prevista na solução do exercício.";
             const exercise = validateExercise({
                 id: await stableId("exercise:" + anchorId + ":" + mode),
                 kind: concept ? "strategy-explain" : "tactic-sequence",
-                title: summary.title || `Exercício ${index + 1}`,
-                prompt: concept
-                    ? "Descreva o plano da posição e justifique sua escolha usando as notas do estudo."
-                    : "Jogue a continuação validada no PGN, incluindo as réplicas do adversário.",
+                title: exerciseNumber
+                    ? `${example ? "Exemplo didático" : "Exercício"} ${exerciseNumber}${trainingType ? " · " + trainingType : ""}`
+                    : summary.title || `Exercício ${index + 1}`,
+                prompt: example
+                    ? prompt
+                    : concept
+                      ? "Descreva o plano da posição e justifique sua escolha usando as notas do estudo."
+                      : prompt,
                 startFen: makeFen(initial.toSetup()),
                 acceptedLinesUci: concept ? [] : lines,
                 explanation:
                     comments ||
-                    "A solução corresponde às continuações explícitas deste PGN. Acrescente uma explicação pedagógica antes de publicar o exercício.",
-                hints: [],
-                tags: [summary.topic || game.headers.get("ChessimoModule") || "PGN"],
+                    (trainingType
+                        ? `Objetivo: ${trainingType}. Compare a continuação com as respostas e variantes do material original.`
+                        : "A solução corresponde às continuações explícitas deste PGN. Acrescente uma explicação pedagógica antes de publicar o exercício."),
+                hints: trainingType
+                    ? [
+                          mate
+                              ? "Observe os xeques e verifique quais casas de fuga o rei ainda tem."
+                              : /^Empate$/i.test(topic)
+                                ? "Procure recursos defensivos, afogamento e possibilidades de repetição."
+                                : "Observe as peças sem defesa e as combinações de ataque.",
+                          ...(role
+                              ? [`A solução começa com um lance de ${pieceNames[role]}.`]
+                              : []),
+                      ]
+                    : [],
+                tags: [...new Set(topic.split(" / "))],
                 courseTitle,
                 rubric: concept
                     ? [
@@ -99,12 +140,36 @@ export async function proposePgnExercises(
                       ]
                     : [],
                 sourceAnchorIds: [anchorId],
-                studyChapterId: sourceKey + ":" + index,
+                studyChapterId: identity,
                 sourcePgn: pgn,
                 status: "needs-review",
                 version: 1,
-                exerciseFamilyId: sourceKey + ":" + index,
-                order: index,
+                exerciseFamilyId: trainingType
+                    ? sourceCollection + ":" + trainingType
+                    : sourceKey + ":" + index,
+                order: sourceRecord && /^\d+$/.test(sourceRecord) ? Number(sourceRecord) : index,
+                goal: mate && !concept ? "checkmate" : "line",
+                trainingType,
+                stage: game.headers.get("Stage"),
+                sourceRecord,
+                sourceCollection,
+                exerciseNumber: exerciseNumber ? Number(exerciseNumber) : undefined,
+                lessonRole: example ? "example" : "exercise",
+                difficultyLabel: game.headers.get("Stage")
+                    ? "Etapa " + game.headers.get("Stage")
+                    : undefined,
+                sourceNotes: [
+                    ...(terminalMarkers
+                        ? [
+                              "O marcador didático -- encerra a linha na fonte; não é um lance jogável.",
+                          ]
+                        : []),
+                    ...(refutations
+                        ? [
+                              "As variantes marcadas como erro estão disponíveis no estudo e não são aceitas como solução.",
+                          ]
+                        : []),
+                ],
             });
             result.exercises.push(exercise);
             result.anchors.push({

@@ -11,7 +11,7 @@ test("treino no tabuleiro, FSRS, reabertura e backup inteiramente offline", asyn
     const remote: string[] = [];
     await context.route("**/*", (route) => {
         if (
-            !route.request().url().startsWith("http://127.0.0.1:1431") &&
+            !route.request().url().startsWith("http://127.0.0.1:1432") &&
             !route.request().url().startsWith("data:")
         ) {
             remote.push(route.request().url());
@@ -84,9 +84,9 @@ test("treino no tabuleiro, FSRS, reabertura e backup inteiramente offline", asyn
     expect(remote.filter((url) => !new URL(url).hostname.endsWith(".kaspersky-labs.com"))).toEqual(
         [],
     );
-    const restored = await browser.newContext({ baseURL: "http://127.0.0.1:1431" });
+    const restored = await browser.newContext({ baseURL: "http://127.0.0.1:1432" });
     await restored.route("**/*", (route) =>
-        route.request().url().startsWith("http://127.0.0.1:1431")
+        route.request().url().startsWith("http://127.0.0.1:1432")
             ? route.continue()
             : route.abort(),
     );
@@ -204,12 +204,12 @@ test("manifesto e requisitos de instalação em perfil normal isolado", async ()
     });
     try {
         await context.route("**/*", (route) =>
-            route.request().url().startsWith("http://127.0.0.1:1431")
+            route.request().url().startsWith("http://127.0.0.1:1432")
                 ? route.continue()
                 : route.abort(),
         );
         const page = await context.newPage();
-        await page.goto("http://127.0.0.1:1431");
+        await page.goto("http://127.0.0.1:1432");
         await expect(page.getByText("Disponível offline", { exact: true })).toBeVisible();
         const cdp = await context.newCDPSession(page);
         await expect

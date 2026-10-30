@@ -2,6 +2,8 @@
 
 PWA de cursos de xadrez, tática, estratégia e revisão FSRS, com dados e motor locais.
 
+**0.16.1:** [módulos de tática, etapas, temas e exemplos didáticos](docs/TACTICS_MODULES.md).
+
 **[Instalação, uso, migração e limites da versão 0.16](docs/CHESSPRATICA.md)** · [Validação](docs/VALIDACAO-0.16.md) · [Licenças](THIRD_PARTY_NOTICES.md)
 
 ```sh

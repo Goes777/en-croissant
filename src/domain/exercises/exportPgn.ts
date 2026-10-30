@@ -6,12 +6,12 @@ import {
     startingPosition,
     type PgnNodeData,
 } from "chessops/pgn";
-import { makeSanAndPlay, parseSan } from "chessops/san";
-import { makeUci, parseUci } from "chessops";
-import { normalizeMove } from "chessops/chess";
+import { makeSanAndPlay } from "chessops/san";
+import { parseUci } from "chessops";
 import { makeFen } from "chessops/fen";
 import type { Exercise } from "./model";
 import { positionFromExercise, validateExercise } from "./grader";
+import { solutionLines } from "./pgnSolution";
 
 /** Keep the original annotated tree whenever it still matches the edited solution. */
 export function coursePgn(exercises: Exercise[]) {
@@ -23,23 +23,7 @@ export function coursePgn(exercises: Exercise[]) {
                 original &&
                 makeFen(startingPosition(original.headers).unwrap().toSetup()) === exercise.startFen
             ) {
-                const lines: string[][] = [];
-                const visit = (
-                    node: typeof original.moves,
-                    position: ReturnType<typeof positionFromExercise>,
-                    played: string[],
-                ) => {
-                    if (!node.children.length && played.length) lines.push(played);
-                    for (const child of node.children) {
-                        const next = position.clone(),
-                            move = parseSan(next, child.data.san);
-                        if (!move) return;
-                        const uci = makeUci(normalizeMove(next, move));
-                        next.play(move);
-                        visit(child, next, [...played, uci]);
-                    }
-                };
-                visit(original.moves, positionFromExercise(exercise.startFen), []);
+                const { lines } = solutionLines(original, exercise.goal === "checkmate");
                 if (
                     JSON.stringify(lines) === JSON.stringify(exercise.acceptedLinesUci) ||
                     !exercise.acceptedLinesUci.length

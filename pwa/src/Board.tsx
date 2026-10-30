@@ -3,7 +3,8 @@ import { Chessground } from "@lichess-org/chessground";
 import type { Api } from "@lichess-org/chessground/api";
 import type { Key } from "@lichess-org/chessground/types";
 import { chessgroundDests } from "chessops/compat";
-import { parseSquare } from "chessops";
+import { parseSquare, makeSquare } from "chessops";
+import { parseComment } from "chessops/pgn";
 import { positionFromExercise } from "@/domain/exercises/grader";
 import { syncBoardBounds } from "@/chessground/syncBoardBounds";
 
@@ -14,6 +15,7 @@ export function TrainingBoard({
   onMove,
   selectedMove,
   theme = "classic",
+  annotations,
 }: {
   fen: string;
   orientation?: "white" | "black";
@@ -21,6 +23,7 @@ export function TrainingBoard({
   onMove?: (uci: string) => void;
   selectedMove?: string;
   theme?: string;
+  annotations?: string[];
 }) {
   const root = useRef<HTMLDivElement>(null),
     api = useRef<Api | null>(null),
@@ -82,8 +85,17 @@ export function TrainingBoard({
         : undefined,
       draggable: { enabled: interactive },
       selectable: { enabled: interactive },
+      drawable: {
+        autoShapes: (annotations ?? []).flatMap((comment) =>
+          parseComment(comment).shapes.map((shape) => ({
+            orig: makeSquare(shape.from),
+            dest: shape.from === shape.to ? undefined : makeSquare(shape.to),
+            brush: shape.color,
+          })),
+        ),
+      },
     });
-  }, [fen, orientation, interactive, selectedMove]);
+  }, [fen, orientation, interactive, selectedMove, annotations]);
   return (
     <div
       className={`training-board board-${theme}`}

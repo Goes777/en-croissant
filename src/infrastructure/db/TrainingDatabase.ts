@@ -109,7 +109,7 @@ export async function reconcileExercises(
                     exercise,
                 });
                 let card = await db.cards.where("exerciseId").equals(exercise.id).first();
-                if (!card && exercise.status === "validated") {
+                if (!card && exercise.status === "validated" && exercise.lessonRole !== "example") {
                     const fsrsCard = fsrsScheduler.create(now);
                     card = {
                         id: "card:" + exercise.id,

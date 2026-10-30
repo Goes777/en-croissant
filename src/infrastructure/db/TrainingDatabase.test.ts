@@ -46,6 +46,21 @@ afterEach(async () => {
     for (const name of new Set(all.map((db) => db.name))) await Dexie.delete(name);
 });
 describe("banco offline e histórico", () => {
+    it("mantém exemplos didáticos no curso sem criar cartões de revisão", async () => {
+        const db = database();
+        await reconcileExercises(
+            db,
+            [exercise, { ...exercise, id: "example", lessonRole: "example" }],
+            anchors,
+            now,
+        );
+        expect(await db.exercises.count()).toBe(2);
+        expect(await db.cards.count()).toBe(1);
+        const restored = database();
+        await restoreBackup(restored, await exportBackup(db));
+        expect(await restored.exercises.count()).toBe(2);
+        expect(await restored.cards.count()).toBe(1);
+    });
     it("grava tentativa + cartão + evento juntos e mantém tudo após reabrir", async () => {
         let db = database();
         await reconcileExercises(db, [exercise], anchors, now);

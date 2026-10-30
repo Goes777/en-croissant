@@ -30,7 +30,7 @@ function AboutModal({
     load();
   }, []);
   return (
-    <Modal centered opened={opened} onClose={() => setOpened(false)} title="ChessimoFree">
+    <Modal centered opened={opened} onClose={() => setOpened(false)} title="ChessPratica">
       <Text>Version: {info?.version}</Text>
       <Text>Tauri version: {info?.tauri}</Text>
       <Text>
@@ -40,7 +40,7 @@ function AboutModal({
       <br />
 
       <Anchor href="https://github.com/Goes777/en-croissant" target="_blank" rel="noreferrer">
-        ChessimoFree — Goes777
+        ChessPratica — Goes777
       </Anchor>
       <Text>Based on En Croissant by Francisco Salgueiro and contributors. GPL-3.0.</Text>
       <Anchor href="https://www.encroissant.org" target="_blank" rel="noreferrer">

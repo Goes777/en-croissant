@@ -4,3 +4,5 @@ allowBuilds:
   core-js: true
   esbuild: true
   protobufjs: true
+minimumReleaseAgeExclude:
+  - fake-indexeddb@6.2.7

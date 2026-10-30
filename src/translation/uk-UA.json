@@ -639,6 +639,7 @@
     "Settings.PreviewBoard.Desc": "Показувати дошку при наведенні курсора на хід в аналізі",
     "Settings.Privacy": "",
     "Settings.Privacy.Desc": "",
+    "Settings.Privacy.LocalOnly": "",
     "Settings.Privacy.Telemetry": "",
     "Settings.Privacy.Telemetry.Desc": "",
     "Settings.Repertoire": "",

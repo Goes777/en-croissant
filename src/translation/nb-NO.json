@@ -621,6 +621,7 @@
     "Settings.PreviewBoard.Desc": "Vis sjakkbrett når musen er over trekk i komputeranalysen.",
     "Settings.Privacy": "",
     "Settings.Privacy.Desc": "",
+    "Settings.Privacy.LocalOnly": "",
     "Settings.Privacy.Telemetry": "",
     "Settings.Privacy.Telemetry.Desc": "",
     "Settings.Repertoire": "",

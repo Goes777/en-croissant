@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "target": "ES2022", "types": ["vite/client", "vite-plugin-pwa/client"] },
+  "include": [
+    "pwa/src/**/*.ts",
+    "pwa/src/**/*.tsx",
+    "src/domain/**/*.ts",
+    "src/infrastructure/**/*.ts"
+  ],
+  "exclude": ["node_modules", "src-tauri", "**/*.test.ts", "**/*.test.tsx"]
+}

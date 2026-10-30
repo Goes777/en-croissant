@@ -1,3 +1,21 @@
+# ChessPratica
+
+PWA de cursos de xadrez, tática, estratégia e revisão FSRS, com dados e motor locais.
+
+**[Instalação, uso, migração e limites da versão 0.16](docs/CHESSPRATICA.md)** · [Validação](docs/VALIDACAO-0.16.md) · [Licenças](THIRD_PARTY_NOTICES.md)
+
+```sh
+pnpm install --frozen-lockfile
+pnpm build:pwa
+pnpm preview:pwa
+```
+
+Abra http://127.0.0.1:1431/ e aguarde “Disponível offline”. Para instalar no celular, sirva `dist-pwa/` em HTTPS. Nenhum serviço de conta ou API é necessário.
+
+O código Tauri e os dados do ChessimoFree são preservados para migração. O texto abaixo documenta o projeto original e seus recursos desktop; esses recursos online não fazem parte da nova PWA.
+
+---
+
 <br />
 <div align="center">
   <a href="https://github.com/franciscoBSalgueiro/en-croissant">
@@ -13,7 +31,7 @@
     <br />
     <br />
     <a href="https://discord.gg/tdYzfDbSSW">Discord Server</a>
-    ·
+    Â·
     <a href="https://www.encroissant.org/download">Download</a>
     .
     <a href="https://www.encroissant.org/docs">Explore the docs</a>
@@ -31,7 +49,7 @@ and access to the existing study board and repertoire trainer.
 See the [course guide](docs/COURSES.md) and [sample PGNs](docs/examples).
 Original authorship and the GPL-3.0 license are retained.
 
-The desktop fork is named **ChessimoFree** and uses a separate application ID,
+The legacy desktop fork was named **ChessimoFree** and uses a separate application ID,
 data directory, and deep-link scheme. Upstream automatic updates are disabled.
 See the [Windows build guide](docs/WINDOWS.md) for preview installers and local builds.
 

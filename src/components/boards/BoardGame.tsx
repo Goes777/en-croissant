@@ -369,7 +369,7 @@ function BoardGame() {
         white: state.whitePlayer,
         black: state.blackPlayer,
         event: eventStr,
-        site: "ChessimoFree",
+        site: "ChessPratica",
         date: dateStr,
         time: timeStr,
         time_control: undefined,

@@ -1,0 +1,52 @@
+name: ChessPratica PWA
+
+on:
+  push:
+    branches: [feature/pgn-courses]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pwa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  offline:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec tsc --noEmit
+      - run: pnpm exec tsc --project tsconfig.pwa.json --noEmit
+      - run: pnpm exec oxlint src pwa/src pwa/e2e
+      - run: pnpm test
+      - run: pnpm build:pwa
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e:pwa
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ChessPratica-validation-${{ github.sha }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
+      - name: Include source and notices alongside the build
+        run: |
+          cp LICENSE THIRD_PARTY_NOTICES.md dist-pwa/
+          git archive --format=zip HEAD -o dist-pwa/ChessPratica-source.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ChessPratica-pwa-${{ github.sha }}
+          path: dist-pwa/
+          if-no-files-found: error
+          retention-days: 30

@@ -12,9 +12,12 @@ node_modules
 coverage
 dist
 dist-ssr
+dist-pwa
+playwright-report
+test-results
 *.local
 .next
-tsconfig.tsbuildinfo
+*.tsbuildinfo
 
 # Editor directories and files
 .vscode/*

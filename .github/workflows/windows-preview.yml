@@ -1,4 +1,4 @@
-name: ChessimoFree Windows preview
+name: ChessPratica desktop migration bridge
 
 on:
   push:
@@ -79,7 +79,7 @@ jobs:
       - name: Upload installer
         uses: actions/upload-artifact@v4
         with:
-          name: ChessimoFree-windows-x64-${{ github.sha }}
+          name: ChessPratica-migration-windows-x64-${{ github.sha }}
           path: |
             src-tauri/target/release/bundle/nsis/*-setup.exe
             src-tauri/target/release/bundle/nsis/*.sha256

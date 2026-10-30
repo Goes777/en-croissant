@@ -30,7 +30,6 @@ import { useLoaderData } from "@tanstack/react-router";
 import { open } from "@tauri-apps/plugin-dialog";
 import { useAtom } from "jotai";
 import { RESET } from "jotai/utils";
-import posthog from "posthog-js";
 import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -61,7 +60,6 @@ import {
   storedDocumentDirAtom,
   storedEnginesDirAtom,
   storedPuzzlesDirAtom,
-  telemetryEnabledAtom,
 } from "@/state/atoms";
 import { keyMapAtom } from "@/state/keybinds";
 import FileInput from "../common/FileInput";
@@ -125,31 +123,6 @@ function SettingRow({
       </div>
       {children}
     </Group>
-  );
-}
-
-function TelemetrySwitch() {
-  const { t } = useTranslation();
-  const [enabled, setEnabled] = useAtom(telemetryEnabledAtom);
-  return (
-    <Switch
-      onLabel={t("Common.On")}
-      offLabel={t("Common.Off")}
-      size="lg"
-      checked={enabled}
-      onChange={(event) => {
-        const newValue = event.currentTarget.checked;
-        setEnabled(newValue);
-        if (newValue) {
-          posthog.opt_in_capturing();
-        } else {
-          posthog.opt_out_capturing();
-        }
-      }}
-      styles={{
-        track: { cursor: "pointer" },
-      }}
-    />
   );
 }
 
@@ -679,7 +652,7 @@ export default function Page() {
         title: t("Settings.Privacy.Telemetry"),
         description: t("Settings.Privacy.Telemetry.Desc"),
         keywords: ["telemetry", "privacy", "analytics", "tracking"],
-        render: () => <TelemetrySwitch />,
+        render: () => <Text size="sm">{t("Settings.Privacy.LocalOnly")}</Text>,
       },
     ],
     [
@@ -861,7 +834,7 @@ export default function Page() {
         <ScrollArea flex={1} px="md">
           {renderSearchResults()}
           <Text size="xs" c="dimmed" ta="right" py="md">
-            ChessimoFree v{version}
+            ChessPratica v{version}
           </Text>
         </ScrollArea>
       ) : (
@@ -1030,7 +1003,7 @@ export default function Page() {
               </Card>
             </ScrollArea>
             <Text size="xs" c="dimmed" ta="right">
-              ChessimoFree v{version}
+              ChessPratica v{version}
             </Text>
           </Stack>
         </Tabs>

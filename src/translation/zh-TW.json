@@ -613,6 +613,7 @@
     "Settings.PreviewBoard.Desc": "滑鼠懸停在引擎分析的著手上時顯示預覽棋盤",
     "Settings.Privacy": "",
     "Settings.Privacy.Desc": "",
+    "Settings.Privacy.LocalOnly": "",
     "Settings.Privacy.Telemetry": "",
     "Settings.Privacy.Telemetry.Desc": "",
     "Settings.Repertoire": "",

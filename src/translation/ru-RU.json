@@ -653,6 +653,7 @@
     "Settings.PreviewBoard.Desc": "Показывать доску при наведении курсора на ход в анализе",
     "Settings.Privacy": "",
     "Settings.Privacy.Desc": "",
+    "Settings.Privacy.LocalOnly": "",
     "Settings.Privacy.Telemetry": "",
     "Settings.Privacy.Telemetry.Desc": "",
     "Settings.Repertoire": "",

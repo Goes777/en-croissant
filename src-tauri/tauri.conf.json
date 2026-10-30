@@ -47,7 +47,7 @@
     "frontendDist": "../dist",
     "devUrl": "http://localhost:1420"
   },
-  "productName": "ChessimoFree",
+  "productName": "ChessPratica",
   "mainBinaryName": "chessimofree",
   "identifier": "io.github.goes777.chessimofree",
   "plugins": {
@@ -72,7 +72,7 @@
     "withGlobalTauri": false,
     "windows": [
       {
-        "title": "ChessimoFree",
+        "title": "ChessPratica",
         "visible": false,
         "decorations": true
       }

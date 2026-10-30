@@ -621,6 +621,7 @@
     "Settings.PreviewBoard.Desc": "Zeige eine Vorschau des Brettes, wenn man im Engine-Analysemodus über einen Zug fährt",
     "Settings.Privacy": "Privatsphäre",
     "Settings.Privacy.Desc": "Einstellung zur Privatsphäre und Datensammlung",
+    "Settings.Privacy.LocalOnly": "",
     "Settings.Privacy.Telemetry": "Telemetrie",
     "Settings.Privacy.Telemetry.Desc": "Hilf En-Croissant zu verbessern, indem anonymisierte Daten gesendet werden",
     "Settings.Repertoire": "Repertoire",

@@ -1,0 +1,144 @@
+:root {
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+body {
+  margin: 0;
+}
+.readable {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+.pgn-source {
+  font-size: 0.8rem;
+  max-height: 350px;
+  overflow: auto;
+}
+.lesson-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(300px, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+.board-column {
+  min-width: 0;
+  max-width: 650px;
+}
+.question-column {
+  min-width: 0;
+}
+.training-board {
+  width: 100%;
+  aspect-ratio: 1;
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(128, 128, 128, 0.3);
+}
+.training-board > .cg-wrap {
+  height: 100%;
+  width: 100%;
+}
+.training-board cg-board {
+  background-image: conic-gradient(#b58863 25%, #f0d9b5 0 50%, #b58863 0 75%, #f0d9b5 0);
+  background-size: 25% 25%;
+}
+.board-green cg-board {
+  background-image: conic-gradient(#779556 25%, #ebecd0 0 50%, #779556 0 75%, #ebecd0 0);
+}
+.board-wood cg-board {
+  background-image: url("./../../public/board/wood.jpg");
+  background-size: 100% 100%;
+}
+.training-board square.last-move {
+  background: rgba(165, 190, 60, 0.5);
+}
+.training-board square.selected {
+  background: rgba(30, 140, 100, 0.5);
+}
+.training-board square.move-dest {
+  background: radial-gradient(rgba(0, 0, 0, 0.28) 23%, transparent 24%);
+}
+.training-board cg-board square.move-dest:hover {
+  background-color: rgba(30, 140, 100, 0.3);
+}
+.training-board coords {
+  color: #263a2e;
+  font-weight: 600;
+}
+.rating-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.mobile-navigation {
+  display: none;
+}
+.mantine-TextInput-input,
+.mantine-Textarea-input {
+  user-select: text;
+}
+button,
+a,
+input,
+textarea {
+  touch-action: manipulation;
+}
+@media (max-width: 48em) {
+  .lesson-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .board-column {
+    max-width: 600px;
+    margin: auto;
+    width: 100%;
+  }
+  .mobile-navigation {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 110;
+    background: var(--mantine-color-body);
+    border-top: 1px solid var(--mantine-color-default-border);
+    padding: 6px 4px max(6px, env(safe-area-inset-bottom));
+    justify-content: space-around;
+  }
+  .mobile-navigation button {
+    border: 0;
+    background: none;
+    color: var(--mantine-color-dimmed);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    font: inherit;
+    font-size: 11px;
+    padding: 5px 10px;
+    min-width: 56px;
+  }
+  .mobile-navigation .selected {
+    color: var(--mantine-primary-color-filled);
+  }
+  .mantine-AppShell-header .mantine-Badge-root {
+    font-size: 9px;
+  }
+  .mantine-AppShell-main {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+@media (min-width: 75em) {
+  .rating-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 48em) {
+  .mantine-AppShell-navbar {
+    display: none;
+  }
+}

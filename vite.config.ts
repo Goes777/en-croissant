@@ -4,6 +4,7 @@ import react from "@vitejs/plugin-react";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import { defineConfig } from "vite";
 import * as os from "node:os";
+import { configDefaults } from "vitest/config";
 
 const isDebug = !!process.env.TAURI_ENV_DEBUG;
 const host = process.env.TAURI_DEV_HOST;
@@ -43,6 +44,7 @@ export default defineConfig({
     },
     test: {
         environment: "jsdom",
+        exclude: [...configDefaults.exclude, "pwa/e2e/**"],
     },
     define: {
         "import.meta.env.VITE_PLATFORM": JSON.stringify(os.platform()),

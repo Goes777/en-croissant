@@ -1,6 +1,6 @@
 import { getVersion } from "@tauri-apps/api/app";
 
-const APP_NAME = "ChessimoFree";
+const APP_NAME = "ChessPratica";
 const APP_REPO = "https://github.com/Goes777/en-croissant";
 
 let userAgent = APP_NAME;

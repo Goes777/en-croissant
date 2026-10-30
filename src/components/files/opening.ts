@@ -1,13 +1,16 @@
 import type { SetStateAction } from "react";
-import { type Card, createEmptyCard, fsrs, type Grade, generatorParameters } from "ts-fsrs";
+import { type Card, createEmptyCard, type Grade } from "ts-fsrs";
 import { z } from "zod";
 import type { PracticeData } from "@/state/atoms";
 import { isPrefix } from "@/utils/misc";
 import { type TreeNode, treeIterator } from "@/utils/treeReducer";
 
-const params = generatorParameters({ enable_fuzz: true });
-
-const f = fsrs(params);
+import {
+    fsrsScheduler,
+    encodeCard,
+    decodeCard,
+    decodeLog,
+} from "@/infrastructure/fsrs/FsrsSchedulerAdapter";
 
 export const positionSchema = z.object({
     fen: z.string(),
@@ -100,9 +103,9 @@ export function updateCardPerformance(
     card: Card,
     grade: 1 | 2 | 3 | 4,
 ) {
-    const schedulingCards = f.repeat(card, new Date());
-
-    const { card: newCard, log } = schedulingCards[grade];
+    const result = fsrsScheduler.review(encodeCard(card), new Date(), grade);
+    const newCard = decodeCard(result.card),
+        log = decodeLog(result.log);
 
     setPositions((data) => {
         data.positions[i].card = newCard;
@@ -146,12 +149,12 @@ export function syncDeck(
 }
 
 export function getNextReviewTimes(card: Card): Record<Grade, Date> {
-    const schedulingCards = f.repeat(card, new Date());
+    const schedulingCards = fsrsScheduler.preview(encodeCard(card), new Date());
     return {
-        1: schedulingCards[1].card.due,
-        2: schedulingCards[2].card.due,
-        3: schedulingCards[3].card.due,
-        4: schedulingCards[4].card.due,
+        1: new Date(schedulingCards[0].dueAt),
+        2: new Date(schedulingCards[1].dueAt),
+        3: new Date(schedulingCards[2].dueAt),
+        4: new Date(schedulingCards[3].dueAt),
     };
 }
 

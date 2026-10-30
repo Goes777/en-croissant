@@ -41,6 +41,7 @@ import { type CourseLesson, type StoredCourse, courseStats } from "./model";
 import { openCourseLesson } from "./open";
 import { listCourses, updateCourseProgress } from "./storage";
 import classes from "./CoursesPage.module.css";
+import { exportDesktopMigration } from "./migration";
 
 export default function CoursesPage() {
   const { t } = useTranslation();
@@ -137,9 +138,27 @@ export default function CoursesPage() {
             </Text>
           </div>
         </Group>
-        <Button leftSection={<IconFileImport size={16} />} onClick={() => setImporting(true)}>
-          {t("Courses.Import.Title")}
-        </Button>
+        <Group>
+          <Button
+            variant="default"
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true);
+              try {
+                await exportDesktopMigration(documentDir);
+              } catch (cause) {
+                notifications.show({ color: "red", message: String(cause) });
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            {t("Courses.ExportMigration")}
+          </Button>
+          <Button leftSection={<IconFileImport size={16} />} onClick={() => setImporting(true)}>
+            {t("Courses.Import.Title")}
+          </Button>
+        </Group>
       </Group>
       {data && data.warnings.length > 0 && (
         <Alert color="yellow">{t("Courses.LibraryWarning", { count: data.warnings.length })}</Alert>

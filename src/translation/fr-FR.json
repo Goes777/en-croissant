@@ -644,6 +644,7 @@
     "Settings.PreviewBoard.Desc": "Affiche un aperçu de l'échiquier lors du survol d'une variante analysée par le moteur",
     "Settings.Privacy": "Confidentialité",
     "Settings.Privacy.Desc": "Paramètres de confidentialité et de collecte des données",
+    "Settings.Privacy.LocalOnly": "",
     "Settings.Privacy.Telemetry": "Télémétrie anonyme",
     "Settings.Privacy.Telemetry.Desc": "Contribuez à améliorer En Croissant en envoyant des données d'utilisation anonymes",
     "Settings.Repertoire": "Répertoire",

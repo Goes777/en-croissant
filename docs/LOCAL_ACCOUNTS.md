@@ -26,7 +26,8 @@ atualmente aberta, não todas as contas.
 O servidor local precisa estar aberto para cadastrar, entrar, verificar a sessão
 ao reabrir e gerenciar a conta. Ele funciona sem acesso à internet e escuta
 somente em 127.0.0.1. Se ele estiver indisponível ao reabrir uma conta, o aplicativo
-mostra o bloqueio e uma opção explícita para abrir o perfil sem conta.
+mostra o bloqueio até conseguir verificar a sessão. Para usar o perfil sem conta,
+saia da conta enquanto o servidor estiver aberto.
 
 No pacote distribuído, execute **INICIAR-CHESSPRATICA.cmd**. É necessário Node.js 24. O servidor empacotado inclui as dependências do Better Auth, portanto não
 precisa de `pnpm install` para funcionar. Mantenha a janela do servidor aberta.

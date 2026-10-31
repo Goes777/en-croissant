@@ -132,15 +132,6 @@ export function AccountApp() {
             <Title order={2}>Conta bloqueada</Title>
             <Text>{error}</Text>
             <Button onClick={() => void verify(true)}>Verificar conta novamente</Button>
-            <Button
-              variant="default"
-              onClick={() => {
-                setIdentity({ user: null, db: trainingDb });
-                setLocked(false);
-              }}
-            >
-              Abrir perfil sem conta
-            </Button>
           </Stack>
         </Container>
       ) : (

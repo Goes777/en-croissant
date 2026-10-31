@@ -1,11 +1,23 @@
-// Local preview of the production PWA. No API, uploads, or data storage here.
+// Loopback-only application server. Account data stays outside the served files.
 import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { join } from "node:path";
+import { homedir } from "node:os";
+import { toNodeHandler } from "better-auth/node";
+import { createLocalAuth } from "./local-auth.mjs";
 
 const root = fileURLToPath(new URL("../dist-pwa/", import.meta.url));
-const port = 1431;
+const port = Number(process.env.CHESSPRATICA_PORT ?? 1431);
+const baseURL = `http://127.0.0.1:${port}`;
+const { auth, close } = await createLocalAuth({
+  baseURL,
+  dataDir:
+    process.env.CHESSPRATICA_DATA_DIR ??
+    join(process.env.LOCALAPPDATA ?? homedir(), "ChessPratica", "accounts"),
+});
+const handleAuth = toNodeHandler(auth);
 const types = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
@@ -21,6 +33,19 @@ const types = {
 };
 const server = createServer(async (request, response) => {
   try {
+    if (request.url?.startsWith("/api/")) {
+      response.setHeader("Cache-Control", "no-store");
+      if (request.headers.host !== new URL(baseURL).host) {
+        response.writeHead(400).end();
+        return;
+      }
+      if (request.url.startsWith("/api/auth/")) {
+        await handleAuth(request, response);
+        return;
+      }
+      response.writeHead(404).end();
+      return;
+    }
     if (!["GET", "HEAD"].includes(request.method ?? "")) {
       response.writeHead(405).end();
       return;
@@ -52,8 +77,8 @@ server.on("error", (error) => {
   );
   process.exitCode = 1;
 });
+server.on("close", close);
+server.requestTimeout = 30_000;
 server.listen(port, "127.0.0.1", () =>
-  console.log(
-    "ChessPratica: http://127.0.0.1:1431/\nAguarde Disponível offline e escolha Instalar no Chrome/Edge.\nCtrl+C encerra esta prévia local.",
-  ),
+  console.log(`ChessPratica: ${baseURL}/\nContas e progresso locais.\nCtrl+C encerra o servidor.`),
 );

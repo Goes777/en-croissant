@@ -1,6 +1,6 @@
 {
   "name": "chesspratica",
-  "version": "0.16.1",
+  "version": "0.17.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -22,6 +22,10 @@
     "dev:pwa": "vite --config vite.pwa.config.ts",
     "build:pwa": "node scripts/collect-pwa-licenses.mjs && tsc --project tsconfig.pwa.json --noEmit && vite build --config vite.pwa.config.ts",
     "preview:pwa": "vite preview --config vite.pwa.config.ts --host 127.0.0.1",
+    "start:local": "node scripts/serve-pwa.mjs",
+    "build:server": "node scripts/build-local-server.mjs",
+    "test:auth": "node --test scripts/local-auth.test.mjs",
+    "test:e2e:accounts": "playwright test --config playwright.accounts.config.ts",
     "test:e2e:pwa": "playwright test --config playwright.pwa.config.ts"
   },
   "dependencies": {
@@ -58,6 +62,7 @@
     "@tiptap/react": "3.32.0",
     "@tiptap/starter-kit": "3.32.0",
     "@vitejs/plugin-react": "^6.1.2",
+    "better-auth": "1.7.14",
     "chessops": "^0.15.1",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.23",

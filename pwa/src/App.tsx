@@ -1,3 +1,4 @@
+import { useTrainingDb } from "./TrainingDbContext";
 import {
   Alert,
   AppShell,
@@ -41,7 +42,6 @@ import {
   exportBackup,
   reconcileExercises,
   reviewQueue,
-  trainingDb,
 } from "@/infrastructure/db/TrainingDatabase";
 import { TrainingSession } from "./TrainingSession";
 import { ImportPanel } from "./ImportPanel";
@@ -75,7 +75,11 @@ const pages = [
   { id: "settings", label: "Ajustes", icon: IconSettings },
 ];
 
-export function App() {
+export function App({
+  accountControls,
+  accountName,
+}: { accountControls?: import("react").ReactNode; accountName?: string } = {}) {
+  const trainingDb = useTrainingDb();
   const [bundledExercises, setBundledExercises] = useState<Exercise[]>([]),
     [moduleBusy, setModuleBusy] = useState(false);
   const [page, setPage] = useState("today"),
@@ -99,13 +103,9 @@ export function App() {
     [install, setInstall] = useState<InstallEvent | null>(null),
     [update, setUpdate] = useState(false),
     [refresh, setRefresh] = useState<((reload?: boolean) => Promise<void>) | null>(null);
-  const [color, setColor] = useState<"light" | "dark">(() =>
-      localStorage.getItem("chesspratica-color") === "light" ? "light" : "dark",
-    ),
-    [boardTheme, setBoardTheme] = useState(
-      () => localStorage.getItem("chesspratica-board") ?? "classic",
-    ),
-    [pieces, setPieces] = useState(() => localStorage.getItem("chesspratica-pieces") ?? "cburnett"),
+  const [color, setColor] = useState<"light" | "dark">(() => "dark"),
+    [boardTheme, setBoardTheme] = useState(() => "classic"),
+    [pieces, setPieces] = useState(() => "cburnett"),
     [persisted, setPersisted] = useState(false),
     [search, setSearch] = useState(""),
     [course, setCourse] = useState<string | null>(null),
@@ -168,21 +168,14 @@ export function App() {
       removeEventListener("offline", onlineHandler);
       removeEventListener("beforeinstallprompt", installHandler);
     };
-  }, []);
-  useEffect(() => {
-    localStorage.setItem("chesspratica-color", color);
-  }, [color]);
+  }, [trainingDb]);
   useEffect(() => {
     if (ready)
       void trainingDb.settings
         .put({ key: "ui.preferences", value: { color, board: boardTheme, pieces } })
         .catch((cause) => setError(String(cause)));
-  }, [ready, color, boardTheme, pieces]);
+  }, [ready, color, boardTheme, pieces, trainingDb]);
   useEffect(() => {
-    localStorage.setItem("chesspratica-board", boardTheme);
-  }, [boardTheme]);
-  useEffect(() => {
-    localStorage.setItem("chesspratica-pieces", pieces);
     const link = document.createElement("link");
     link.rel = "stylesheet";
     link.href = import.meta.env.BASE_URL + `pieces/${pieces}.css`;
@@ -276,7 +269,7 @@ export function App() {
   async function openModule(title: string) {
     setModuleBusy(true);
     try {
-      await installBundledModule(title);
+      await installBundledModule(trainingDb, title);
       setCourse(title);
       setKind(null);
       setStage(null);
@@ -298,7 +291,13 @@ export function App() {
         padding="md"
       >
         <AppShell.Header>
-          <Group h="100%" px="lg" justify="space-between" wrap="nowrap">
+          <Group
+            className="app-header-layout"
+            h="100%"
+            px="lg"
+            justify="space-between"
+            wrap="nowrap"
+          >
             <Group gap="xs">
               <IconChessKnight size={34} />
               <div>
@@ -311,6 +310,7 @@ export function App() {
               </div>
             </Group>
             <Group gap="xs">
+              {accountControls}
               <Badge color={offlineReady ? "green" : "gray"} variant="light">
                 {offlineReady
                   ? "Disponível offline"
@@ -341,9 +341,9 @@ export function App() {
             ))}
           </Stack>
           <Text size="xs" c="dimmed" mt="auto">
-            Dados locais · sem conta
+            {accountName ? `Conta: ${accountName}` : "Perfil sem conta"}
             <br />
-            v0.16.1
+            v0.17.0
           </Text>
         </AppShell.Navbar>
         <AppShell.Main>
@@ -500,6 +500,7 @@ export function App() {
                           variant="default"
                           onClick={() =>
                             void exportCourse(
+                              trainingDb,
                               snapshot.exercises.filter((x) => !course || x.courseTitle === course),
                             ).catch((cause) => setError(String(cause)))
                           }
@@ -907,9 +908,9 @@ export function App() {
                     <Card withBorder>
                       <Title order={3}>Armazenamento e privacidade</Title>
                       <Text mt="sm">
-                        Sem conta, telemetria ou envio de arquivos. Os dados ficam neste
-                        navegador/dispositivo. Faça backup antes de trocar de aparelho ou limpar os
-                        dados do navegador.
+                        Contas locais neste computador. Sem telemetria ou envio de arquivos. Os
+                        dados ficam neste navegador/dispositivo. Faça backup antes de trocar de
+                        aparelho ou limpar os dados do navegador.
                       </Text>
                       <Text mt="xs" size="sm">
                         Armazenamento persistente:{" "}

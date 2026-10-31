@@ -18,6 +18,7 @@ const queue = [
   "ts-fsrs",
   "zod",
   "workbox-window",
+  "better-auth",
 ].map((name) => ({ name, from: join(root, "package.json") }));
 queue.push({
   name: "workbox-build",

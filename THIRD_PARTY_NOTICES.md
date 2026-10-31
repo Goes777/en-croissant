@@ -7,6 +7,10 @@ Os avisos originais e a licença GPL versão 3 em `LICENSE` são mantidos.
 
 ## Componentes distribuídos
 
+A versão 0.17.0 acrescenta Better Auth 1.7.14 (MIT), SQLite nativo do Node e um
+servidor local empacotado. Os avisos de Better Auth e suas dependências acompanham
+`THIRD-PARTY-LICENSES.txt`. Fonte: https://github.com/better-auth/better-auth.
+
 | Componente                | Versão usada                      | Licença / fonte                                                                            |
 | ------------------------- | --------------------------------- | ------------------------------------------------------------------------------------------ |
 | En Croissant              | base deste fork                   | GPL-3.0; https://github.com/franciscoBSalgueiro/en-croissant                               |

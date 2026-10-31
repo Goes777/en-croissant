@@ -1,7 +1,7 @@
 import { exerciseSchema, type Exercise } from "@/domain/exercises/model";
 import { validateExercise } from "@/domain/exercises/grader";
 import { z } from "zod";
-import { trainingDb } from "@/infrastructure/db/TrainingDatabase";
+import type { TrainingDatabase } from "@/infrastructure/db/TrainingDatabase";
 import { coursePgn } from "@/domain/exercises/exportPgn";
 
 export function exportPgn(exercises: Exercise[]) {
@@ -38,7 +38,7 @@ export function parsePackage(input: unknown) {
         throw new Error("O curso não contém todas as referências de origem.");
     return pack;
 }
-export async function exportCourse(exercises: Exercise[]) {
+export async function exportCourse(trainingDb: TrainingDatabase, exercises: Exercise[]) {
     const anchors = (
         await trainingDb.anchors.bulkGet([...new Set(exercises.flatMap((x) => x.sourceAnchorIds))])
     ).filter((x) => !!x);

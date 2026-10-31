@@ -1,3 +1,4 @@
+import { useTrainingDb } from "./TrainingDbContext";
 import {
   Alert,
   Badge,
@@ -20,12 +21,12 @@ import {
   backupSchema,
   reconcileExercises,
   restoreBackup,
-  trainingDb,
 } from "@/infrastructure/db/TrainingDatabase";
 import { parsePackage } from "./io";
 import { validateExercise } from "@/domain/exercises/grader";
 
 export function ImportPanel({ onImported }: { onImported: () => void }) {
+  const trainingDb = useTrainingDb();
   const [files, setFiles] = useState<File[]>([]),
     [title, setTitle] = useState("Meu curso"),
     [mode, setMode] = useState<string | null>("moves"),

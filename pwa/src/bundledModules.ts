@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { packageSchema, parsePackage } from "./io";
-import { reconcileExercises, trainingDb } from "@/infrastructure/db/TrainingDatabase";
+import { reconcileExercises, type TrainingDatabase } from "@/infrastructure/db/TrainingDatabase";
 
 // Optional personal course files. Empty in a public source checkout.
 const urls = Object.values(
@@ -24,7 +24,7 @@ export function loadBundledModules() {
         }),
     ));
 }
-export async function installBundledModule(title: string) {
+export async function installBundledModule(trainingDb: TrainingDatabase, title: string) {
     for (const pack of await loadBundledModules()) {
         if (pack.module.title !== title) continue;
         const key = "installed-module:" + pack.module.id;

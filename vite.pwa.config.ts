@@ -34,6 +34,7 @@ export default defineConfig({
                 globPatterns: ["**/*.{js,css,html,png,svg,wasm,txt,json}"],
                 maximumFileSizeToCacheInBytes: 8_000_000,
                 navigateFallback: "index.html",
+                navigateFallbackDenylist: [/^\/api\//],
                 cleanupOutdatedCaches: true,
             },
             devOptions: { enabled: false },

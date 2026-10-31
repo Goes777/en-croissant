@@ -44,7 +44,12 @@ export default defineConfig({
     },
     test: {
         environment: "jsdom",
-        exclude: [...configDefaults.exclude, "pwa/e2e/**"],
+        exclude: [
+            ...configDefaults.exclude,
+            "pwa/e2e/**",
+            "pwa/account-e2e/**",
+            "scripts/local-auth.test.mjs",
+        ],
     },
     define: {
         "import.meta.env.VITE_PLATFORM": JSON.stringify(os.platform()),

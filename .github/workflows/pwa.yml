@@ -29,9 +29,12 @@ jobs:
       - run: pnpm exec tsc --project tsconfig.pwa.json --noEmit
       - run: pnpm exec oxlint src pwa/src pwa/e2e
       - run: pnpm test
+      - run: pnpm test:auth
       - run: pnpm build:pwa
+      - run: pnpm build:server
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:e2e:pwa
+      - run: pnpm test:e2e:accounts
       - uses: actions/upload-artifact@v4
         if: always()
         with:

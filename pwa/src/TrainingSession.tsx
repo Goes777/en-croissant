@@ -1,3 +1,4 @@
+import { useTrainingDb } from "./TrainingDbContext";
 import {
   Alert,
   Badge,
@@ -27,7 +28,7 @@ import {
   suggestedRating,
 } from "@/domain/exercises/grader";
 import { fsrsScheduler } from "@/infrastructure/fsrs/FsrsSchedulerAdapter";
-import { recordReview, trainingDb } from "@/infrastructure/db/TrainingDatabase";
+import { recordReview } from "@/infrastructure/db/TrainingDatabase";
 import { TrainingBoard } from "./Board";
 import { LocalEngine } from "./engine";
 import { lineInSan } from "@/domain/exercises/notation";
@@ -45,6 +46,7 @@ export function TrainingSession({
   onClose: () => void;
   boardTheme: string;
 }) {
+  const trainingDb = useTrainingDb();
   const [startedAt] = useState(() => new Date().toISOString()),
     [attemptId] = useState(() => crypto.randomUUID());
   const [fen, setFen] = useState(exercise.startFen),

@@ -1,3 +1,4 @@
+import { useTrainingDb } from "./TrainingDbContext";
 import {
   Alert,
   Button,
@@ -18,7 +19,7 @@ import { proposePgnExercises } from "@/domain/exercises/pgn";
 import { coursePgn } from "@/domain/exercises/exportPgn";
 import { TrainingBoard } from "./Board";
 import { validateExercise } from "@/domain/exercises/grader";
-import { reconcileExercises, trainingDb } from "@/infrastructure/db/TrainingDatabase";
+import { reconcileExercises } from "@/infrastructure/db/TrainingDatabase";
 
 export function StudyPanel({
   exercise,
@@ -29,6 +30,7 @@ export function StudyPanel({
   theme: string;
   onClose: () => void;
 }) {
+  const trainingDb = useTrainingDb();
   const [view, setView] = useState(exercise),
     [fenDraft, setFenDraft] = useState(exercise.startFen),
     [lines, setLines] = useState(
@@ -41,7 +43,7 @@ export function StudyPanel({
     void trainingDb.anchors
       .bulkGet(exercise.sourceAnchorIds)
       .then((items) => setAnchors(items.filter((item) => !!item)));
-  }, [exercise.sourceAnchorIds]);
+  }, [exercise.sourceAnchorIds, trainingDb]);
   const [step, setStep] = useState(0),
     [branch, setBranch] = useState<number[]>([]),
     [editing, setEditing] = useState(false),

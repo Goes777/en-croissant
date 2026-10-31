@@ -2,6 +2,8 @@
 
 PWA de cursos de xadrez, tática, estratégia e revisão FSRS, com dados e motor locais.
 
+**0.17.0:** [contas locais com Better Auth e percurso individual](docs/LOCAL_ACCOUNTS.md).
+
 **0.16.1:** [módulos de tática, etapas, temas e exemplos didáticos](docs/TACTICS_MODULES.md).
 
 **[Instalação, uso, migração e limites da versão 0.16](docs/CHESSPRATICA.md)** · [Validação](docs/VALIDACAO-0.16.md) · [Licenças](THIRD_PARTY_NOTICES.md)
@@ -9,7 +11,8 @@ PWA de cursos de xadrez, tática, estratégia e revisão FSRS, com dados e motor
 ```sh
 pnpm install --frozen-lockfile
 pnpm build:pwa
-pnpm preview:pwa
+pnpm build:server
+pnpm start:local
 ```
 
 Abra http://127.0.0.1:1431/ e aguarde “Disponível offline”. Para instalar no celular, sirva `dist-pwa/` em HTTPS. Nenhum serviço de conta ou API é necessário.

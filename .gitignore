@@ -34,3 +34,5 @@ src-tauri/gen/
 
 # Personal course material is packaged locally, never committed to the public fork.
 local-courses/
+.auth-data/
+server-dist/

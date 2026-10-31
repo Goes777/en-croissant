@@ -3,10 +3,10 @@ import { createRoot } from "react-dom/client";
 import "@mantine/core/styles.css";
 import "@/styles/chessgroundBaseOverride.css";
 import "./style.css";
-import { App } from "./App";
+import { AccountApp } from "./AccountApp";
 
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <App />
+    <AccountApp />
   </React.StrictMode>,
 );

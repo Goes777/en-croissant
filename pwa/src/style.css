@@ -142,3 +142,27 @@ textarea {
     display: none;
   }
 }
+
+.account-mobile-label {
+  display: none;
+}
+@media (max-width: 48em) {
+  .account-desktop-label {
+    display: none;
+  }
+  .account-mobile-label {
+    display: inline;
+  }
+  .app-header-layout {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    gap: 4px;
+  }
+}
+.account-connection {
+  position: fixed;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  z-index: 220;
+}

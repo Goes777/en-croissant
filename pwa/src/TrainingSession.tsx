@@ -153,11 +153,12 @@ export function TrainingSession({
   return (
     <Stack>
       <Group justify="space-between">
-        <Button variant="subtle" onClick={onClose}>
+        <Button variant="subtle" onClick={onClose} disabled={saving}>
           Voltar à agenda
         </Button>
         <Badge>{isMoveExercise(exercise) ? "Tática / técnica" : "Estratégia"}</Badge>
       </Group>
+      {saving && <Text role="status">Salvando revisão…</Text>}
       <div className="lesson-layout">
         <div className="board-column">
           <TrainingBoard

@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import { homedir } from "node:os";
 import { toNodeHandler } from "better-auth/node";
-import { createLocalAuth } from "./local-auth.mjs";
+import { createLocalAuth, setConnectionIp } from "./local-auth.mjs";
 
 const root = fileURLToPath(new URL("../dist-pwa/", import.meta.url));
 const port = Number(process.env.CHESSPRATICA_PORT ?? 1431);
@@ -40,6 +40,7 @@ const server = createServer(async (request, response) => {
         return;
       }
       if (request.url.startsWith("/api/auth/")) {
+        setConnectionIp(request);
         await handleAuth(request, response);
         return;
       }

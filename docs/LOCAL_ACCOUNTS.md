@@ -69,21 +69,46 @@ offline. A telemetria do Better Auth está explicitamente desabilitada. O driver
 SQLite nativo do Node 24.11 usado na validação emite um aviso de experimental;
 as migrações, contas e reinício foram testados efetivamente.
 
+O adaptador HTTP fornece ao Better Auth somente `request.socket.remoteAddress`,
+em `x-chesspratica-connection-ip`. Esse cabeçalho é sempre sobrescrito pelo
+servidor; `X-Forwarded-For` e `X-Real-IP` enviados pelo cliente não são usados.
+Isso evita o aviso de IP ausente e impede trocar o bucket de rate limit por
+meio de um cabeçalho falso. Pessoas usando a mesma instalação loopback
+compartilham o IP e, portanto, o limite por rota.
+
+O servidor distribuído continua restrito ao loopback. Uma implantação pública
+precisa configurar HTTPS, `baseURL` e origens permitidas explícitas, cookies
+Secure e segredo persistente fora dos arquivos servidos. Atrás de um proxy,
+o IP do socket identifica o proxy: adapte a resolução apenas para proxies
+conhecidos, com lista de confiança e cabeçalhos sobrescritos pelo proxy.
+Não aceite `X-Forwarded-For` arbitrário nem desative origem, CSRF ou rate limit
+para esconder o aviso. Veja as [opções oficiais](https://better-auth.com/docs/reference/options)
+e as [proteções de segurança](https://better-auth.com/docs/reference/security).
+
+Ao avaliar um treino, aguarde a volta à agenda antes de recarregar. Enquanto a
+transação está pendente, a tela mostra **Salvando revisão…**. O retorno à agenda
+só ocorre depois do commit conjunto da tentativa, evento e cartão FSRS.
+
 ## Validação em 31/10/2026
 
-- **125 testes Vitest aprovados em 22 arquivos**, incluindo isolamento entre
+- **126 testes Vitest aprovados em 22 arquivos**, incluindo rollback atômico, isolamento entre
   perfis, reabertura, cópia idempotente e preservação do legado.
-- **1 teste de integração do servidor aprovado**: credenciais, cookies HttpOnly,
-  logout, proteção de origem, ausência de senha em texto puro e persistência.
+- **2 testes de integração do servidor aprovados**: credenciais, cookies HttpOnly,
+  logout, proteção de origem, ausência de senha em texto puro, persistência,
+  IP da conexão e bloqueio da 21ª tentativa apesar de cabeçalhos falsos.
 - **2 cenários Playwright de contas aprovados**: duas pessoas com históricos
   diferentes, duas abas, cópia do percurso, nome, senha, exclusão da própria
   conta, tela móvel e bloqueio ao reabrir sem verificar a sessão.
+  A gravação é mantida pendente de forma controlada e o IndexedDB real é lido
+  pelo identificador autenticado, antes/depois de reload e troca de conta.
 - **6 cenários Playwright anteriores aprovados** com internet bloqueada,
   incluindo Stockfish, PGNs, backup/restauração e os 1.312 exercícios pessoais.
 - TypeScript desktop/PWA, lint do código novo, build PWA e servidor aprovados.
 
 Todos os cadastros e bancos usados nos testes eram temporários. Não foram
 criadas contas no perfil pessoal do usuário durante a validação.
+
+Diagnóstico da falha no GitHub Actions: [CI_ACCOUNTS_FIX.md](CI_ACCOUNTS_FIX.md).
 
 Referências: [instalação Better Auth](https://better-auth.com/docs/installation),
 [contas](https://better-auth.com/docs/concepts/users-accounts) e

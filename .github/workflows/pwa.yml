@@ -27,7 +27,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec tsc --noEmit
       - run: pnpm exec tsc --project tsconfig.pwa.json --noEmit
-      - run: pnpm exec oxlint src pwa/src pwa/e2e
+      - run: pnpm exec oxlint src pwa/src pwa/e2e pwa/account-e2e scripts/local-auth.mjs scripts/local-auth.test.mjs scripts/serve-pwa.mjs
       - run: pnpm test
       - run: pnpm test:auth
       - run: pnpm build:pwa
@@ -42,6 +42,7 @@ jobs:
           path: |
             playwright-report/
             test-results/
+            !test-results/auth-server-*/**
           retention-days: 14
       - name: Include source and notices alongside the build
         run: |

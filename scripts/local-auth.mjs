@@ -2,8 +2,17 @@ import { randomBytes } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
+import { isIP } from "node:net";
 import { betterAuth } from "better-auth";
 import { getMigrations } from "better-auth/db/migration";
+
+// Only this server may supply the IP used for sessions and rate limiting.
+export const connectionIpHeader = "x-chesspratica-connection-ip";
+export function setConnectionIp(request) {
+  delete request.headers[connectionIpHeader];
+  const address = request.socket.remoteAddress;
+  if (address && isIP(address)) request.headers[connectionIpHeader] = address;
+}
 
 // Each installation keeps the database and secret locally, outside the web root.
 export async function createLocalAuth({ dataDir, baseURL }) {
@@ -32,7 +41,10 @@ export async function createLocalAuth({ dataDir, baseURL }) {
       max: 100,
       customRules: { "/sign-in/email": { window: 60, max: 20 } },
     },
-    advanced: { disableOriginCheck: false },
+    advanced: {
+      disableOriginCheck: false,
+      ipAddress: { ipAddressHeaders: [connectionIpHeader] },
+    },
   };
   const migrations = await getMigrations(options);
   await migrations.runMigrations();

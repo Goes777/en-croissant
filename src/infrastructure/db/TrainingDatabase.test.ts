@@ -86,6 +86,26 @@ describe("banco offline e histórico", () => {
         expect(await db.events.count()).toBe(1);
         expect(await db.attempts.count()).toBe(1);
     });
+    it("desfaz tentativa, evento e FSRS juntos se a gravação falhar, permitindo tentar novamente", async () => {
+        const db = database();
+        await reconcileExercises(db, [exercise], anchors, now);
+        const before = await db.cards.toArray();
+        const fail = () => {
+            throw new Error("Falha de gravação simulada");
+        };
+        db.events.hook("creating", fail);
+        await expect(recordReview(db, attempt(), 3, 0)).rejects.toThrow(
+            "Falha de gravação simulada",
+        );
+        expect(await db.attempts.count()).toBe(0);
+        expect(await db.events.count()).toBe(0);
+        expect(await db.cards.toArray()).toEqual(before);
+        db.events.hook("creating").unsubscribe(fail);
+        await recordReview(db, attempt(), 3, 0);
+        expect(await db.attempts.count()).toBe(1);
+        expect(await db.events.count()).toBe(1);
+        expect((await db.cards.toArray())[0].fsrsCard.reps).toBe(1);
+    });
     it("reimporta sem duplicar cartões e preserva histórico se o gabarito mudar", async () => {
         const db = database();
         await reconcileExercises(db, [exercise], anchors, now);

@@ -4,6 +4,7 @@
   "include": [
     "pwa/src/**/*.ts",
     "pwa/src/**/*.tsx",
+    "pwa/account-e2e/**/*.ts",
     "src/domain/**/*.ts",
     "src/infrastructure/**/*.ts"
   ],

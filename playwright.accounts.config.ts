@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 
 export default defineConfig({
     testDir: "./pwa/account-e2e",
+    outputDir: "test-results/accounts",
     timeout: 90_000,
     expect: { timeout: 15_000 },
     workers: 1,
